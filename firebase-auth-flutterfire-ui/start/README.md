@@ -1,4 +1,6 @@
-Dans ce projet ,j'ai fais les fonctionnalités suivantes :
+Le lien du projet est : [firebase-auth-flutterfire-ui/start.](https://github.com/Thadde/codelabs/tree/main/firebase-auth-flutterfire-ui/start)
+
+Dans ce projet ,j'ai couvert les fonctionnalités suivantes :
 
 1. Authentification et inscription des utilisateurs à l'aide de Firebase Authentication.
 2. Utilisation de Firebase Firestore pour stocker les données des utilisateurs et des activités.
