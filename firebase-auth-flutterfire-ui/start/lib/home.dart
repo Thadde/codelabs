@@ -1,11 +1,73 @@
 
-// ignore_for_file: use_super_parameters, library_private_types_in_public_api, inference_failure_on_instance_creation, avoid_types_on_closure_parameters
-
+// ignore_for_file: use_super_parameters, library_private_types_in_public_api, inference_failure_on_instance_creation, avoid_types_on_closure_parameters, prefer_single_quotes
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_auth/firebase_auth.dart' hide EmailAuthProvider;
+import 'package:firebase_ui_auth/firebase_ui_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+void main() {
+  runApp(const MaterialApp(
+    title: 'MIAGRD',
+    home: AuthGate(),
+  ));
+}
+
+class AuthGate extends StatelessWidget {
+  const AuthGate({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return StreamBuilder<User?>(
+      stream: FirebaseAuth.instance.authStateChanges(),
+      builder: (context, snapshot) {
+        if (!snapshot.hasData) {
+          return SignInScreen(
+            providers: [
+              EmailAuthProvider(),
+            ],
+            headerBuilder: (context, constraints, shrinkOffset) {
+              return Padding(
+                padding: const EdgeInsets.all(20),
+                child: AspectRatio(
+                  aspectRatio: 1,
+                  child: Image.asset('flutterfire_300x.png'),
+                ),
+              );
+            },
+            subtitleBuilder: (context, action) {
+              return Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8.0),
+                child: action == AuthAction.signIn
+                    ? const Text('Welcome to FlutterFire, please sign in!')
+                    : const Text('Welcome to Flutterfire, please sign up!'),
+              );
+            },
+            footerBuilder: (context, action) {
+              return const Padding(
+                padding: EdgeInsets.only(top: 16),
+                child: Text(
+                  'By signing in, you agree to our terms and conditions.',
+                  style: TextStyle(color: Colors.grey),
+                ),
+              );
+            },
+            sideBuilder: (context, shrinkOffset) {
+              return Padding(
+                padding: const EdgeInsets.all(20),
+                child: AspectRatio(
+                  aspectRatio: 1,
+                  child: Image.asset('flutterfire_300x.png'),
+                ),
+              );
+            },
+          );
+        }
+        return const HomeScreen();
+      },
+    );
+  }
+}
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -82,6 +144,17 @@ class _HomeScreenState extends State<HomeScreen> {
           }
         },
       ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () async {
+          try {
+            await FirebaseAuth.instance.signOut();
+          } catch (e) {
+            print("Error signing out: $e");
+          }
+        },
+        child: const Icon(Icons.logout),
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
     );
   }
 
@@ -233,82 +306,81 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
   }
 
   @override
-Widget build(BuildContext context) {
-  return Scaffold(
-    appBar: AppBar(
-      title: const Text('Profil'),
-    ),
-    body: Center(
-      child: SingleChildScrollView(
-        child: Container(
-          width: MediaQuery.of(context).size.width * 0.8,
-          margin: const EdgeInsets.all(16.0),
-          padding: const EdgeInsets.all(16.0),
-          decoration: BoxDecoration(
-            color: Colors.grey[200],
-            borderRadius: BorderRadius.circular(10),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.grey.withOpacity(0.5),
-                spreadRadius: 3,
-                blurRadius: 7,
-                offset: const Offset(0, 3),
-              ),
-            ],
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text(
-                    'Profil',
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black,
-                    ),
-                  ),
-                  ElevatedButton(
-                    onPressed: () {
-                      _saveUserProfile(widget.user!);
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.white,
-                    ),
-                    child: const Text(
-                      'Valider',
-                      style: TextStyle(
-                        fontSize: 16,
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Profil'),
+      ),
+      body: Center(
+        child: SingleChildScrollView(
+          child: Container(
+            width: MediaQuery.of(context).size.width * 0.8,
+            margin: const EdgeInsets.all(16.0),
+            padding: const EdgeInsets.all(16.0),
+            decoration: BoxDecoration(
+              color: Colors.grey[200],
+              borderRadius: BorderRadius.circular(10),
+              boxShadow: const [],
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Container(
+                      color: Colors.blue,
+                      padding: const EdgeInsets.all(8),
+                      child: const Text(
+                        'Profil',
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
                       ),
                     ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 16),
-              if (widget.user != null)
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    _buildReadOnlyField(Icons.email, 'Email', widget.user!.email ?? ''),
-                    _buildReadOnlyField(Icons.lock, 'Password', '******'),
-                    _buildTextField(Icons.calendar_today, 'Birthday', _birthdayController),
-                    _buildTextField(Icons.home, 'Address', _addressController),
-                    _buildPostalCodeTextField(Icons.location_on, 'Postal Code', _postalCodeController),
-                    _buildTextField(Icons.location_city, 'City', _cityController),
-                    const SizedBox(height: 16),
+                    ElevatedButton(
+                      onPressed: () {
+                        _saveUserProfile(widget.user!);
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.green,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      ),
+                      child: const Text(
+                        'Valider',
+                        style: TextStyle(
+                          fontSize: 16,
+                        ),
+                      ),
+                    ),
                   ],
                 ),
-            ],
+                const SizedBox(height: 16),
+                if (widget.user != null)
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _buildReadOnlyField(Icons.email, 'Email', widget.user!.email ?? ''),
+                      _buildReadOnlyField(Icons.lock, 'Password', '******'),
+                      _buildTextField(Icons.calendar_today, 'Birthday', _birthdayController),
+                      _buildTextField(Icons.home, 'Address', _addressController),
+                      _buildPostalCodeTextField(Icons.location_on, 'Postal Code', _postalCodeController),
+                      _buildTextField(Icons.location_city, 'City', _cityController),
+                      const SizedBox(height: 16),
+                    ],
+                  ),
+              ],
+            ),
           ),
         ),
       ),
-    ),
-  );
-}
+    );
+  }
 
-  
   Widget _buildReadOnlyField(IconData icon, String label, String value) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -424,16 +496,14 @@ Widget build(BuildContext context) {
       'city': _cityController.text,
     };
 
-    FirebaseFirestore.instance.collection('users').doc(user.uid).set(userProfile)
-        .then((_) {
+    FirebaseFirestore.instance.collection('users').doc(user.uid).set(userProfile).then((_) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Informations de profil enregistrées avec succès.'),
           duration: Duration(seconds: 2),
         ),
       );
-    })
-        .catchError((error) {
+    }).catchError((error) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Erreur lors de l\'enregistrement des informations de profil.'),
@@ -443,8 +513,6 @@ Widget build(BuildContext context) {
     });
   }
 }
-
-
 
 class CartActivitiesScreen extends StatelessWidget {
   final User? currentUser;
@@ -466,10 +534,7 @@ class CartActivitiesScreen extends StatelessWidget {
             borderRadius: BorderRadius.circular(10),
           ),
           child: StreamBuilder<QuerySnapshot>(
-            stream: FirebaseFirestore.instance
-                .collection('panier')
-                .where('userId', isEqualTo: currentUser?.uid)
-                .snapshots(),
+            stream: FirebaseFirestore.instance.collection('panier').where('userId', isEqualTo: currentUser?.uid).snapshots(),
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
                 return const CircularProgressIndicator();
